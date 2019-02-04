@@ -1,4 +1,4 @@
-From 63469bd4c514d2b7769f8336ee525549d8a0b054 Mon Sep 17 00:00:00 2001
+From 47327061cdf32a07923a985a9142bd3a079ec890 Mon Sep 17 00:00:00 2001
 From: Michal Krawczyk <mk@semihalf.com>
 Date: Fri, 25 Jan 2019 09:10:25 +0100
 Subject: [PATCH 16/17] net/ena: fix dev init with multi-process
@@ -17,14 +17,14 @@ Cc: stable@dpdk.org
 
 Signed-off-by: Michal Krawczyk <mk@semihalf.com>
 ---
- drivers/net/ena/ena_ethdev.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/net/ena/ena_ethdev.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/net/ena/ena_ethdev.c b/drivers/net/ena/ena_ethdev.c
-index 932f711c2..82b122757 100644
+index 932f711c2..aad3ab458 100644
 --- a/drivers/net/ena/ena_ethdev.c
 +++ b/drivers/net/ena/ena_ethdev.c
-@@ -1276,20 +1276,21 @@ static int eth_ena_dev_init(struct rte_eth_dev *eth_dev)
+@@ -1276,19 +1276,20 @@ static int eth_ena_dev_init(struct rte_eth_dev *eth_dev)
  
  	static int adapters_found;
  
@@ -41,17 +41,15 @@ index 932f711c2..82b122757 100644
  	if (rte_eal_process_type() != RTE_PROC_PRIMARY)
  		return 0;
  
--	pci_dev = RTE_DEV_TO_PCI(eth_dev->device);
 +	memset(adapter, 0, sizeof(struct ena_adapter));
 +	ena_dev = &adapter->ena_dev;
 +
 +	adapter->rte_eth_dev_data = eth_dev->data;
 +	adapter->rte_dev = eth_dev;
 +
-+	pci_dev = RTE_ETH_DEV_TO_PCI(eth_dev->device);
+ 	pci_dev = RTE_DEV_TO_PCI(eth_dev->device);
  	adapter->pdev = pci_dev;
  
- 	PMD_INIT_LOG(INFO, "Initializing %x:%x:%x.%d",
 -- 
 2.14.1
 
