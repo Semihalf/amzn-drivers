@@ -1,0 +1,48 @@
+From ab2efdd95bd523f7af5ed6aa2dfe57f5447d479a Mon Sep 17 00:00:00 2001
+From: Stanislaw Kardach <kda@semihalf.com>
+Date: Mon, 30 Nov 2020 14:18:47 +0100
+Subject: [PATCH 01/72] test: proceed if timer subsystem was initialized
+
+rte_timer_subsystem_init() may return -EALREADY if the timer subsystem
+was already initialized. This can happen i.e. in PMD code (see
+eth_ena_dev_init). This is not an error, rather a notification as the
+initialization function simply returns without any action taken.
+
+Signed-off-by: Stanislaw Kardach <kda@semihalf.com>
+---
+ app/test/test.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/app/test/test.c b/app/test/test.c
+index 4736a17ff3..3e063af333 100644
+--- a/app/test/test.c
++++ b/app/test/test.c
+@@ -134,8 +134,13 @@ main(int argc, char **argv)
+ 		goto out;
+ 	}
+ 
++	argv += ret;
++
++	prgname = argv[0];
++
+ #ifdef RTE_LIBRTE_TIMER
+-	if (rte_timer_subsystem_init() < 0) {
++	ret = rte_timer_subsystem_init();
++	if (ret < 0 && ret != -EALREADY) {
+ 		ret = -1;
+ 		goto out;
+ 	}
+@@ -146,10 +151,6 @@ main(int argc, char **argv)
+ 		goto out;
+ 	}
+ 
+-	argv += ret;
+-
+-	prgname = argv[0];
+-
+ 	recursive_call = getenv(RECURSIVE_ENV_VAR);
+ 	if (recursive_call != NULL) {
+ 		ret = do_recursive_call();
+-- 
+2.25.1
+
