@@ -164,6 +164,17 @@ file of the current build setup.
 - **CONFIG_RTE_LIBRTE_ENA_COM_DEBUG** *(default n)*: Enables or disables debug
   logging of low level tx/rx logic in ena_com(base) within the ENA PMD driver.
 
+If the meson build system is used instead, the `rte_config.h` in the build
+folder is used to control some of the above parameters. To enable the extra
+loggers, they should be defined in the mentioned file:
+
+```C
+// buildpath/rte_config.h
+#define RTE_LIBRTE_ENA_DEBUG_RX 1
+#define RTE_LIBRTE_ENA_DEBUG_TX 1
+#define RTE_LIBRTE_ENA_COM_DEBUG 1
+```
+
 ## 4. ENAv2 (>= v2.0.0) and WriteCombining
 
 For ENA PMD of v2.0.0 and higher it's mandatory to map memory BAR of the ENA as
